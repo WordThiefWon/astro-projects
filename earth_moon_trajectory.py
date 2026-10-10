@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-# Final Project
 ''' The goal of this project is to simulate the trajectories of the Earth 
 and the Moon during one year. 
 '''
@@ -15,18 +14,19 @@ G = 4*np.pi**2
 mass = {
     'sun': 1.0,
     'earth': 3.0034e-6,
-    'moon': 3.6923e-8}
+    'moon': 3.6923e-8
+    }
 
 r0 = {
     'sun': np.array([0,0,0]),
     'earth': np.array([9.978977040419635E-01, 6.586825681892025E-02, -6.320430920521123E-06]),
     'moon': np.array([9.956768547953816E-01, 6.676030485840675E-02, 1.641093070596718E-04])
-     }
+    }
 v0 = {
     'sun': np.array([0,0,0]),
     'earth': np.array([-4.70015711e-01, 6.25165839e+00, -3.40817831e-04]),
     'moon': np.array([-0.55065949, 6.03534661, 0.01111456])
-}
+    }
 
 mS = mass['sun']
 mE = mass['earth'] # mass of earth in solar masses
@@ -37,7 +37,7 @@ rM = r0['moon'] # moon position vector
 vE = v0['earth'] # earth velocity vector
 vM = v0['moon'] # moon velocity vector
 
-# Part 1 - Earth and Moon: Forces
+# Earth and Moon: Forces
 def F_gravity(ri, rj, mi, mj):
     ''' This function calculates the force vector for the equation of motion of force on i at position
     ri due to j at position rj. It returns a numpy array that represents the force vector.
@@ -56,7 +56,7 @@ def F_ES(rE):
     F_ES = F_gravity(rE, rS, mE, mS) # the force on earth at rE due to the Sun at rS
     return F_ES
 
-# Part 2 - Earth's orbit
+# Earth's orbit
 def integrate_earth(tmax, dt=1e-3):
     ''' This function returns the trajectory of Earth assuming the Earth only feels the 
     attraction from the Sun.
@@ -72,7 +72,7 @@ def integrate_earth(tmax, dt=1e-3):
         data.append(rE.copy())
     return np.array(data)
 
-# Part 3 - Earth AND Moon
+# Earth AND Moon
 def F_EM(rE, rM):
     ''' This function calculates the force from the Moon on the Earth. rE is the position of
     Earth, rM is the position of the Moon.
@@ -121,61 +121,63 @@ def integrate_EM(tmax, dt=1e-3):
         data_M.append(rM.copy())
     return (np.array(data_E), np.array(data_M))
 
-earth_integrated = integrate_earth(1)
-earth_moon = integrate_EM(1)
-earth, moon = earth_moon
+if __name__ == "__main__":
 
-### Earth only plot
-plt.figure() # starts us off with a fresh new plot
-plt.plot(earth_integrated[:, 0:1], earth_integrated[:, 1:2], "r", label="Earth")
-plt.xlabel('x (AU)')
-plt.ylabel('y (AU)')
-plt.gca().set_aspect("equal")
-plt.plot(r0["earth"][0], r0["earth"][1], "r^")
-plt.legend()
-filename = "orbit_earth_only.png"
-plt.savefig(filename)
+    earth_integrated = integrate_earth(1)
+    earth_moon = integrate_EM(1)
+    earth, moon = earth_moon
 
-### Earth and Moon plot
-plt.figure() # remember to start with a fresh plot here
-plt.plot(earth[:, 0:1], earth[:, 1:2], color="#27DDF5", linestyle="solid", label="Earth")
-plt.plot(moon[:, 0:1], moon[:, 1:2], color="#DD27F5", linestyle="--", label="Moon")
-plt.xlabel('x (AU)')
-plt.ylabel('y (AU)')
-plt.gca().set_aspect("equal")
-plt.plot(r0["earth"][0], r0["earth"][1], "r^")
-plt.legend()
-filename = "orbit_earth_moon.png"
-plt.savefig(filename)
+    ### Earth only plot
+    plt.figure() # starts us off with a fresh new plot
+    plt.plot(earth_integrated[:, 0:1], earth_integrated[:, 1:2], "r", label="Earth")
+    plt.xlabel('x (AU)')
+    plt.ylabel('y (AU)')
+    plt.gca().set_aspect("equal")
+    plt.plot(r0["earth"][0], r0["earth"][1], "r^")
+    plt.legend()
+    filename = "orbit_earth_only.png"
+    plt.savefig(filename)
 
-# Part 4 - NASA Horizons Earth trajectory
-def read_data(datafile):
-    positions = []
-    with open(datafile) as file:
-        begin_append = False
-        for line in file:
-            line = line.strip()
-            if line.startswith("$$EOE"):
-                break
-            if begin_append == True:
-                values = line.split(',')
-                positions.append(values[2:5])
-            if line.startswith("$$SOE"):
-                begin_append = True
-                continue
-    positions = np.array(positions, dtype=np.float64)
-    return positions
+    ### Earth and Moon plot
+    plt.figure() # remember to start with a fresh plot here
+    plt.plot(earth[:, 0:1], earth[:, 1:2], color="#27DDF5", linestyle="solid", label="Earth")
+    plt.plot(moon[:, 0:1], moon[:, 1:2], color="#DD27F5", linestyle="--", label="Moon")
+    plt.xlabel('x (AU)')
+    plt.ylabel('y (AU)')
+    plt.gca().set_aspect("equal")
+    plt.plot(r0["earth"][0], r0["earth"][1], "r^")
+    plt.legend()
+    filename = "orbit_earth_moon.png"
+    plt.savefig(filename)
 
-datafile = "EARTH_horizons_results.txt"            
-positions = read_data(datafile)
-X, Y, Z = positions.T
+    # NASA Horizons Earth trajectory
+    def read_data(datafile):
+        positions = []
+        with open(datafile) as file:
+            begin_append = False
+            for line in file:
+                line = line.strip()
+                if line.startswith("$$EOE"):
+                    break
+                if begin_append == True:
+                    values = line.split(',')
+                    positions.append(values[2:5])
+                if line.startswith("$$SOE"):
+                    begin_append = True
+                    continue
+        positions = np.array(positions, dtype=np.float64)
+        return positions
 
-plt.figure()
-plt.plot(X, Y, color="#DD27F5", linestyle="solid", label="NASA")
-plt.plot(earth[:, 0:1], earth[:, 1:2], color="#27DDF5", linestyle="--", label="Euler")
-plt.xlabel('x (AU)')
-plt.ylabel('y (AU)')
-plt.gca().set_aspect("equal")
-plt.legend()
-filename = "NASA_Euler_comparison.png"
-plt.savefig(filename)
+    datafile = "EARTH_horizons_results.txt"            
+    positions = read_data(datafile)
+    X, Y, Z = positions.T
+
+    plt.figure()
+    plt.plot(X, Y, color="#DD27F5", linestyle="solid", label="NASA")
+    plt.plot(earth[:, 0:1], earth[:, 1:2], color="#27DDF5", linestyle="--", label="Euler")
+    plt.xlabel('x (AU)')
+    plt.ylabel('y (AU)')
+    plt.gca().set_aspect("equal")
+    plt.legend()
+    filename = "NASA_Euler_comparison.png"
+    plt.savefig(filename)
