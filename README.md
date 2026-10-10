@@ -1,2 +1,2 @@
-# Mary-s-Creations
-Keeping a copy of all my homework from my class, but this may also be the place I do my own project, who knows.
+# Astro Projects
+Welcome! This is a repo where I keep all my public projects I am currently working on. Feel free to peruse, and enjoy!
